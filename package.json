@@ -1,0 +1,22 @@
+{
+  "name": "initial-ae-balances-generator",
+  "version": "1.0.0",
+  "description": "",
+  "main": "generate_json.js",
+  "dependencies": {
+    "web3": "^1.0.0-beta.36"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aeternity/initial-ae-balances-generator.git"
+  },
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aeternity/initial-ae-balances-generator/issues"
+  },
+  "homepage": "https://github.com/aeternity/initial-ae-balances-generator#readme"
+}

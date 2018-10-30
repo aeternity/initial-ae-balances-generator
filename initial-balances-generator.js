@@ -2,12 +2,13 @@
 const Web3 = require("web3");
 const fs = require('fs');
 const args = require('minimist')(process.argv.slice(2));
+const ProgressBar = require('progress');
 
 const WEB3_URL = args.p;
 const DELIVERY_PERIOD = args.d;
 
 if (WEB3_URL == null || DELIVERY_PERIOD == null) {
-	console.log('Specify websocket provider and delivery period: "node generate_json.js -p ws://localhost:8546 -d 0"');
+	console.log('Specify websocket provider and delivery period: "node initial-balances-generator.js -p ws://localhost:8546 -d 0"');
     process.exit(1);
 }
 
@@ -16,7 +17,6 @@ process
     if (code == 0) {
 		if (fs.existsSync("./.cfg")) 
 			fs.unlinkSync("./.cfg");
-		console.log(lastCount)
         console.log(`File saved: genesis.json.`);
 	} 
 })
@@ -179,6 +179,12 @@ const tokenBurnerABI = [
 
 
 const TokenBurner = new web3.eth.Contract(tokenBurnerABI, BURNER_CONTRACT);
+var bar;
+TokenBurner.methods.burnCount().call((err, burnCount) => {
+	console.log(burnCount)
+	bar = new ProgressBar(':bar :current/:total Burn events found.', { total: Number(burnCount) });
+});
+
 var json = {};
 var start = START_BLOCK;
 var end = 0;
@@ -186,14 +192,15 @@ var lastCount = 0;
 
 async function startWatching() {
     const currentBlockNumber = await web3.eth.getBlockNumber();
-	
 	checkConfig();
 
     let done = false;
     let address;
-    let value;
+	let value;
+	if (lastCount != 0)
+		bar.tick(lastCount);
 
-    while (!done) {
+	while (!done) {
         end = start + 200;
         if (end > currentBlockNumber) {
             done = true;
@@ -202,7 +209,7 @@ async function startWatching() {
         await TokenBurner.getPastEvents(
             "Burn",
             { 
-                fromBlock: start, 
+				fromBlock: start, 
                 toBlock: end,
                 filter : {_deliveryPeriod : [DELIVERY_PERIOD]}
             },
@@ -210,6 +217,7 @@ async function startWatching() {
                 if (!errors) {
                     if (events.length > 0) {
                         for (let i=0; i<events.length; i++) {
+							bar.tick();
 							if(events[i].returnValues._count <= lastCount) {
 								continue;
 							}

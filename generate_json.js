@@ -7,17 +7,27 @@ const WEB3_URL = args.p;
 const DELIVERY_PERIOD = args.d;
 
 if (WEB3_URL == null || DELIVERY_PERIOD == null) {
-    process.exit(66);
+	console.log('Specify websocket provider and delivery period: "node generate_json.js -p ws://localhost:8546 -d 0"');
+    process.exit(1);
 }
 
-process.on('exit', (code) => {
+process
+.on('exit', (code) => {
     if (code == 0) {
+		if (fs.existsSync("./.cfg")) 
+			fs.unlinkSync("./.cfg");
+		console.log(lastCount)
         console.log(`File saved: genesis.json.`);
-    }
-    if (code == 66){
-        console.log('Specify websocket provider and delivery period: "node generate_json.js -p ws://localhost:8546 -d 0"');
-    } 
-});
+	} 
+})
+.on('SIGINT', onexit)
+.on('SIGTERM', onexit);
+
+function onexit() {
+	console.log('*** EXITING ***');
+	saveState();
+	process.exit(1);
+}
 
 const web3 = new Web3(new Web3.providers.WebsocketProvider(WEB3_URL));
 var BN = web3.utils.BN;
@@ -167,20 +177,24 @@ const tokenBurnerABI = [
 	}
 ];
 
+
 const TokenBurner = new web3.eth.Contract(tokenBurnerABI, BURNER_CONTRACT);
 var json = {};
+var start = START_BLOCK;
+var end = 0;
+var lastCount = 0;
 
 async function startWatching() {
     const currentBlockNumber = await web3.eth.getBlockNumber();
-    
-    let start = START_BLOCK;
-    let end;
+	
+	checkConfig();
+
     let done = false;
     let address;
     let value;
 
     while (!done) {
-        end = start + 1000;
+        end = start + 200;
         if (end > currentBlockNumber) {
             done = true;
             end = currentBlockNumber;
@@ -196,13 +210,17 @@ async function startWatching() {
                 if (!errors) {
                     if (events.length > 0) {
                         for (let i=0; i<events.length; i++) {
+							if(events[i].returnValues._count <= lastCount) {
+								continue;
+							}
                             address = web3.utils.toAscii(events[i].returnValues._pubkey);
                             if (isValidAEddress(address)) {
                                 value = events[i].returnValues._value;
                                 if (json[address])
                                     json[address] = new BN(json[address]).add(new BN(value)).toString();
                                 else json[address] = new BN(value).toString();
-                            };
+							};
+							lastCount = Number(events[i].returnValues._count);
                         }
                     }
                 } else {
@@ -211,17 +229,38 @@ async function startWatching() {
             }
         );
         start = end;
-    }
-    saveFile(json);
+	}
+	saveJSON();
+	process.exit(0);
+}
+
+function checkConfig() {
+	if (fs.existsSync("./.cfg") && fs.existsSync("./genesis.json")) {
+		let input = fs.readFileSync("./.cfg");
+		let jsonConfig = JSON.parse(input);
+		start = jsonConfig.start;
+		end = jsonConfig.end;
+		lastCount = jsonConfig.lastCount;
+		input = fs.readFileSync("./genesis.json");
+		json = JSON.parse(input);
+	} 
 }
 
 function isValidAEddress(address) {
     return address.startsWith("ak_") && address.length > 50 && address.length < 60;
 }
 
-function saveFile(json) {
+function saveJSON() {
     fs.writeFileSync("./genesis.json", JSON.stringify(json));
-    process.exit(0);
+}
+
+function saveCFG() {
+	fs.writeFileSync("./.cfg", JSON.stringify({ start: start, end: end, lastCount: lastCount }))
+}
+
+function saveState() {
+	saveJSON();
+	saveCFG();
 }
 
 startWatching();

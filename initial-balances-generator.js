@@ -7,11 +7,13 @@ const ProgressBar = require('progress');
 const WEB3_URL = args.p;
 const DELIVERY_PERIOD = args.d;
 
+// validate parameters
 if (WEB3_URL == null || DELIVERY_PERIOD == null) {
 	console.log('Specify websocket provider and delivery period: "node initial-balances-generator.js -p ws://localhost:8546 -d 0"');
     process.exit(1);
 }
 
+// handle process exit
 process
 .on('exit', (code) => {
     if (code == 0) {
@@ -29,6 +31,7 @@ function onexit() {
 	process.exit(1);
 }
 
+// setup Web3
 const web3 = new Web3(new Web3.providers.WebsocketProvider(WEB3_URL));
 var BN = web3.utils.BN;
 // TODO: Address on mainnet
@@ -37,160 +40,189 @@ const BURNER_CONTRACT = "0x4ecD812B010D9Db16b0fb7143A79786B65b89B09";
 const START_BLOCK = 9028627;
 const tokenBurnerABI = [
     {
-        "constant": true,
-		"inputs": [],
-		"name": "AEdeliveryBatchCounter",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint16"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "burnCount",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "countUpDeliveryBatch",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_from",
-				"type": "address"
-			},
-			{
-				"name": "_value",
-				"type": "uint256"
-			},
-			{
-				"name": "_token",
-				"type": "address"
-			},
-			{
-				"name": "_pubkey",
-				"type": "bytes"
-			}
-		],
-		"name": "receiveApproval",
-		"outputs": [
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "AEdmin1",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "AEdmin2",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"inputs": [
-			{
-				"name": "_AEdmin1",
-				"type": "address"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"anonymous": false,
-		"inputs": [
-			{
-				"indexed": true,
-				"name": "_from",
-				"type": "address"
-			},
-			{
-				"indexed": false,
-				"name": "_pubkey",
-				"type": "bytes"
-			},
-			{
-				"indexed": false,
-				"name": "_value",
-				"type": "uint256"
-			},
-			{
-				"indexed": false,
-				"name": "_count",
-				"type": "uint256"
-			},
-			{
-				"indexed": true,
-				"name": "_deliveryPeriod",
-				"type": "uint16"
-			}
-		],
-		"name": "Burn",
-		"type": "event"
-	}
-];
+      "constant": true,
+      "inputs": [],
+      "name": "AEdeliveryBatchCounter",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "burnCount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "uint16"
+        }
+      ],
+      "name": "batchTimes",
+      "outputs": [
+        {
+          "name": "blockNumber",
+          "type": "uint256"
+        },
+        {
+          "name": "eventCount",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "AEdmin",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "name": "_AEdmin",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_pubkey",
+          "type": "bytes"
+        },
+        {
+          "indexed": false,
+          "name": "_value",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "name": "_count",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "name": "_deliveryPeriod",
+          "type": "uint16"
+        }
+      ],
+      "name": "Burn",
+      "type": "event"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "str",
+          "type": "bytes"
+        }
+      ],
+      "name": "checkAddress",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "_from",
+          "type": "address"
+        },
+        {
+          "name": "_value",
+          "type": "uint256"
+        },
+        {
+          "name": "_token",
+          "type": "address"
+        },
+        {
+          "name": "_pubkey",
+          "type": "bytes"
+        }
+      ],
+      "name": "receiveApproval",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "countUpDeliveryBatch",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ];
 
 
 const TokenBurner = new web3.eth.Contract(tokenBurnerABI, BURNER_CONTRACT);
+
 var bar;
-TokenBurner.methods.burnCount().call((err, burnCount) => {
-	console.log(burnCount)
-	bar = new ProgressBar(':bar :current/:total Burn events found.', { total: Number(burnCount) });
-});
 
 var json = {};
 var start = START_BLOCK;
 var end = 0;
 var lastCount = 0;
 
+startWatching();
+
 async function startWatching() {
+	console.log("Starting..");
+	await setupProgressBar();
     const currentBlockNumber = await web3.eth.getBlockNumber();
 	checkConfig();
 
@@ -209,7 +241,7 @@ async function startWatching() {
         await TokenBurner.getPastEvents(
             "Burn",
             { 
-				fromBlock: start, 
+				fromBlock: start,
                 toBlock: end,
                 filter : {_deliveryPeriod : [DELIVERY_PERIOD]}
             },
@@ -254,6 +286,28 @@ function checkConfig() {
 	} 
 }
 
+async function setupProgressBar() {
+	let total;
+
+	let currentDeliveryPeriod = await TokenBurner.methods.AEdeliveryBatchCounter().call();
+	if (Number(currentDeliveryPeriod) < DELIVERY_PERIOD) {
+		console.log("The provided delivery period is invalid. The most recent one is " + currentDeliveryPeriod);
+		process.exit(1);
+	}
+
+	let burnCount = await TokenBurner.methods.burnCount().call();
+
+	if (DELIVERY_PERIOD > 0) {
+		let prevBatchTime = await TokenBurner.methods.batchTimes(DELIVERY_PERIOD-1).call();
+		start = Number(prevBatchTime.blockNumber);
+		total = Number(burnCount) - Number(prevBatchTime.eventCount);
+	} else {
+		total = Number(burnCount);
+	}
+	console.log(total + " burn events to be found");
+	bar = new ProgressBar(':bar :current/:total Burn events found.', { total: total });
+}
+
 function isValidAEddress(address) {
     return address.startsWith("ak_") && address.length > 50 && address.length < 60;
 }
@@ -270,5 +324,3 @@ function saveState() {
 	saveJSON();
 	saveCFG();
 }
-
-startWatching();

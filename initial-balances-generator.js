@@ -34,10 +34,8 @@ function onexit() {
 // setup Web3
 const web3 = new Web3(new Web3.providers.WebsocketProvider(WEB3_URL));
 var BN = web3.utils.BN;
-// TODO: Address on mainnet
-const BURNER_CONTRACT = "0x4ecD812B010D9Db16b0fb7143A79786B65b89B09";
-// TODO: TokenBurner deployment block
-const START_BLOCK = 9028627;
+const BURNER_CONTRACT = '0x8a3B7094e1D80C8366B4687cB85862311C931C52'
+const START_BLOCK = 6682073;
 const tokenBurnerABI = [
     {
       "constant": true,

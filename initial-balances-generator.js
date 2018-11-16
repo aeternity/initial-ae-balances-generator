@@ -32,7 +32,20 @@ function onexit() {
 }
 
 // setup Web3
-const web3 = new Web3(new Web3.providers.WebsocketProvider(WEB3_URL));
+const provider = new Web3.providers.WebsocketProvider(WEB3_URL)
+provider.on('error', error => {
+  console.log('WS Error');
+  console.log(error);
+  throw error;
+  process.exit(1);
+});
+provider.on('end', error => {
+  console.log('WS closed');
+  console.log(error);
+  throw error;
+  process.exit(1);
+});
+const web3 = new Web3(provider);
 var BN = web3.utils.BN;
 const BURNER_CONTRACT = '0x8a3B7094e1D80C8366B4687cB85862311C931C52'
 const START_BLOCK = 6682073;

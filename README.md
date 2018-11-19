@@ -14,3 +14,15 @@ e.g.
 
 where: `-p [WebsocketProvider]`
        `-d [delivery_period]`
+
+After running the script successfully, format it with `jq` and trim quotes (`"`) of the numbers.
+
+```
+$ cat  genesis.json | jq . | sed -e 's/: "/: /' -e 's/",$/,/' -e 's/"$//' > genesis_no_quotes.json
+```
+
+Verify the file hash. The correct hash is not yet known as token migration is still ongoing.
+
+```
+$shasum -a 256 genesis_no_quotes.json
+f7445bXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  genesis_no_quotes.json

@@ -1,0 +1,67 @@
+[parity]
+# Parity continously syncs the chain
+mode = "active"
+# Blockchain and settings will be stored in /node-storage/parityData.
+base_path = "/node-storage/parityData"
+# Parity databases will be stored in /node-storage/parityData/chaindata.
+db_path = "/node-storage/parityData/chaindata"
+
+[network]
+# When warp enabled never attempt regular sync before warping to block NUM.
+warp_barrier = 6500000
+# Parity will listen for connections on port 30301.
+port = 30301
+# Parity will try to maintain connection to at least 50 peers.
+min_peers = 50
+# Parity will maintain at most 70 peers.
+max_peers = 70
+# Specify node secret key (64-char hex or input to SHA3)
+node_key = "secret"
+# Specify a path to a file with peers' enodes to be always connected to.
+# reserved_peers = "/node-storage/chaindata/Peers.txt"
+
+[rpc]
+# JSON-RPC over HTTP will be accessible on port 6545.
+port = 6545
+#  JSON-RPC will be listening for connections on IP all.
+interface = "all"
+# Allows Cross-Origin Requests from domain 'all'.
+cors = ["all"]
+# Allow connections only using specified addresses.
+hosts = ["all"]
+# Only selected APIs will be exposed over this interface.
+apis = ["web3", "eth", "pubsub", "net", "parity", "private", "parity_pubsub", "traces", "rpc", "shh", "shh_pubsub", "personal", "parity_accounts"]
+# Threads for handling incoming connections for HTTP JSON-RPC server.
+server_threads = 4
+
+[websockets]
+# JSON-RPC over WebSockets will be accessible on port 30303.
+port = 30303
+#  JSON-RPC will be listening for connections on IP all.
+interface = "all"
+# Allow connections only using specified addresses.
+hosts = ["all","*"]
+# Only selected APIs will be exposed over this interface.
+apis = ["web3", "eth", "parity_set", "pubsub", "net", "parity", "parity_pubsub", "private", "rpc", "shh", "shh_pubsub", "parity_accounts"]
+# Maximum number of allowed concurrent WebSockets JSON-RPC connections.
+max_connections = 15
+
+[footprint]
+# Increase performance on SSD.
+db_compaction = "ssd"
+# Prune old state data. Maintains journal overlay - fast but extra 50MB of memory used.
+pruning = "fast"
+# Will keep up to 2048MB data in Database cache.
+cache_size_db = 2048
+# Will keep up to 1024MB data in Blockchain cache.
+cache_size_blocks = 1024
+# Will keep up to 1024MB of blocks in block import queue.
+cache_size_queue = 1024
+# Will keep up to 1024MB data in State cache.
+cache_size_state = 1024
+# If defined will never use more then 4096MB for all caches. (Overrides other cache settings).
+cache_size = 4096
+
+[whisper]
+# Enable the Whisper network.
+enabled = true

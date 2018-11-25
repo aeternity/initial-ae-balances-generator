@@ -1,0 +1,20 @@
+version: '3'
+services:
+   parity:
+    container_name: parity
+    image: parity/parity:v2.1.4
+    hostname: parity
+    volumes:
+      - ${PWD}/node-config:/config
+      - ${PWD}/node-storage:/node-storage
+    command: --config /config/config.toml --jsonrpc-cors all --jsonrpc-hosts all --unsafe-expose
+    expose:
+      - "30303"
+
+#   generator:
+#     build: ./generator/
+#     image: aeternity/initial-ae-balances-generator:${IMAGE_TAG-latest}
+#     hostname: generator
+#     command: -p ws://parity:30303 -d 0
+#     volumes:
+#        - ${PWD}/output:/usr/src/code/output

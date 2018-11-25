@@ -5,6 +5,10 @@ const ProgressBar = require('progress');
 
 const WEB3_URL = args.p;
 const DELIVERY_PERIOD = args.d;
+const OUTPUT_PATH = './output';
+
+const CFG_PATH = `${OUTPUT_PATH}/.cfg`;
+const GENESIS_PATH = `${OUTPUT_PATH}/genesis.json`;
 
 // validate parameters
 if (WEB3_URL == null || DELIVERY_PERIOD == null) {
@@ -16,8 +20,8 @@ if (WEB3_URL == null || DELIVERY_PERIOD == null) {
 process
   .on('exit', (code) => {
     if (code == 0) {
-      if (fs.existsSync("./.cfg"))
-        fs.unlinkSync("./.cfg");
+      if (fs.existsSync(CFG_PATH))
+        fs.unlinkSync(CFG_PATH);
       console.log(`File saved: genesis.json.`);
     }
   })
@@ -231,6 +235,7 @@ startWatching();
 
 async function startWatching() {
   console.log("Starting..");
+  console.log(await web3.eth.isSyncing())
   await setupProgressBar();
   const currentBlockNumber = await web3.eth.getBlockNumber();
   checkConfig();
@@ -284,13 +289,13 @@ async function startWatching() {
 }
 
 function checkConfig() {
-  if (fs.existsSync("./.cfg") && fs.existsSync("./genesis.json")) {
-    let input = fs.readFileSync("./.cfg");
+  if (fs.existsSync(CFG_PATH) && fs.existsSync(GENESIS_PATH)) {
+    let input = fs.readFileSync(CFG_PATH);
     let jsonConfig = JSON.parse(input);
     start = jsonConfig.start;
     end = jsonConfig.end;
     lastCount = jsonConfig.lastCount;
-    input = fs.readFileSync("./genesis.json");
+    input = fs.readFileSync(GENESIS_PATH);
     json = JSON.parse(input);
   }
 }
@@ -322,11 +327,11 @@ function isValidAEddress(address) {
 }
 
 function saveJSON() {
-  fs.writeFileSync("./genesis.json", JSON.stringify(json));
+  fs.writeFileSync(GENESIS_PATH, JSON.stringify(json));
 }
 
 function saveCFG() {
-  fs.writeFileSync("./.cfg", JSON.stringify({ start: start, end: end, lastCount: lastCount }))
+  fs.writeFileSync(CFG_PATH, JSON.stringify({ start: start, end: end, lastCount: lastCount }))
 }
 
 function saveState() {

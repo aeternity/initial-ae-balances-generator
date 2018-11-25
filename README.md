@@ -22,8 +22,8 @@ sure thing
 $ cat  genesis.json | jq . | sed -e 's/: "/: /' -e 's/",$/,/' -e 's/"$//' > accounts.json
 ```
 
-Verify the file hash. The correct hash is not yet known as token migration is still ongoing.
+Verify the file hash.
 
 ```
-$shasum -a 256 genesis_no_quotes.json
-f7445bXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  genesis_no_quotes.json
+$shasum -a 256 accounts.json
+6b5895bc9fcad63880f465ce841edb5cd4ae313c53bd39289da9ce64f263fd74a accounts.json

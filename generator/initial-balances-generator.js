@@ -268,6 +268,7 @@ async function startWatching() {
                 continue;
               }
               address = web3.utils.toAscii(events[i].returnValues._pubkey);
+              address = address.replace(/(\r\n\t|\n|\r\t)/gm,"");
               if (isValidAEddress(address)) {
                 value = events[i].returnValues._value;
                 if (json[address])

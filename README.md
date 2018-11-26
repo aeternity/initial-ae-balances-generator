@@ -9,7 +9,7 @@ e.g.
 }
 ```
 
-# Usage
+# Usage node.js
 `node generate-json.js -p ws://localhost:8546 -d 0`
 
 where: `-p [WebsocketProvider]`
@@ -27,3 +27,9 @@ Verify the file hash. The correct hash is not yet known as token migration is st
 ```
 $shasum -a 256 genesis_no_quotes.json
 f7445bXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  genesis_no_quotes.json
+
+# Usage Docker
+```
+chmod -R 777 node-storage
+cocker-compose-up
+```

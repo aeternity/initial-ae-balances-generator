@@ -8,7 +8,7 @@ db_path = "/node-storage/parityData/chaindata"
 
 [network]
 # When warp enabled never attempt regular sync before warping to block NUM.
-warp_barrier = 6500000
+warp_barrier = 6672000
 # Parity will listen for connections on port 30301.
 port = 30301
 # Parity will try to maintain connection to at least 50 peers.

@@ -235,7 +235,29 @@ startWatching();
 
 async function startWatching() {
   console.log("Starting..");
-  console.log(await web3.eth.isSyncing())
+  console.log("Check node sync..");
+  let synced = false;
+  let isSyncing;
+  let blockNumber;
+
+  while (!synced) {
+    isSyncing = await web3.eth.isSyncing()
+    if(typeof isSyncing === 'boolean' && !isSyncing) {
+      console.log('Seems like Node is synced')
+      synced = true
+    } else {
+      console.log(`${''
+        }NODE IS SYNCING: currentBlock: ${
+          isSyncing.currentBlock
+        }\thighestBlock: ${
+          isSyncing.highestBlock
+        }\t\tstartingBlock: ${
+          isSyncing.startingBlock
+      }`)
+      await sleep(5000)
+    }
+  }
+
   await setupProgressBar();
   const currentBlockNumber = await web3.eth.getBlockNumber();
   checkConfig();
@@ -289,6 +311,11 @@ async function startWatching() {
   process.exit(0);
 }
 
+function sleep(ms){
+  return new Promise(resolve=>{
+    setTimeout(resolve,ms)
+  })
+}
 function checkConfig() {
   if (fs.existsSync(CFG_PATH) && fs.existsSync(GENESIS_PATH)) {
     let input = fs.readFileSync(CFG_PATH);

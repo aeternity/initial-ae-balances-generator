@@ -1,3 +1,4 @@
 genesis.json
 node_modules
 .cfg
+node-storage/parityData/*

@@ -1,29 +1,31 @@
 # initial-ae-balances-generator
-Generate a `genesis.json` with AEccounts and balances for the given delivery period,
+Generate a `accounts.json` with AEccounts and balances for the given delivery period,
 e.g.
 ```
+$ head accounts.json
 {
-    "ak_wmZUvZWrVibPM2PuSGhgWmMQXchEWgRTbwBp7tYUcPyBYHnpR":"5000000000000006",
-    "ak_v12Pf9vWcN5tSuN2SeFL3RmYUDpu7zeeUsSuAYwyGDMW9NX3B":"7666616739113605573880",
-    "ak_35dcFLx2yrkkHsvwm3CGyXoAn2FuJjSvxeWDwrGSjRBwQvYAB":"2000000000000000000"
-}
+  "ak_1GPPzM3VDKCP5RNEbp2uBNtgGTHRNQmrNkeAKGp7wfPWKYQvM": 6098700000000000000000,
+  "ak_1K5vpH1WEGSQnrSLdk1Y1fBBc48zA6xiijuaQQbUKgLhcHZ5J": 24063510000000000000000,
+  "ak_211qpHaGTsNJTPGSTqGjSEwsc9y59EFLQhveVcWASxB4Wt8L6V": 2100000000000000000,
+  "ak_216i6AuBfMHQUXvkzFxTwFgKvgiM7RTJ3HAnA22uxZutNQqe7": 384279056000000000000,
+  "ak_21CRygi4JNP3zPTTPVczp58dpoxfd5T4H8ihQqwfdGBscw5uxd": 1750000000000000000000,
+  "ak_21SNo3YauCq2MCgLcHAeVhBju5zyfzMSTkSc94zqd15AVVeVaa": 13177139541300000000000,
+  "ak_21bCwkU3c9CsM2CmJUtkFbmgZM2MsWZDDprUJDXUAYjytjce65": 1000000000000000000,
+  "ak_21fQWLjY8fW7qx5yjFJt83w8D5Wci3v2fFsn8o91RQofnw1kJ3": 62536340215200000000000,
+  "ak_21sfKckpk3EgRtRJpBFFv8UF9QuDjC1fvbWzoAnmoBNuo2SUtH": 28000000000000000000000,
+$
 ```
 
 # Usage
-`node generate-json.js -p ws://localhost:8546 -d 0`
+`node initial-balances-generator.js -p ws://localhost:8546 -d 0`
 
 where: `-p [WebsocketProvider]`
        `-d [delivery_period]`
 
-After running the script successfully, format it with `jq` and trim quotes (`"`) of the numbers.
-
-sure thing
-```
-$ cat  genesis.json | jq . | sed -e 's/: "/: /' -e 's/",$/,/' -e 's/"$//' > accounts.json
 ```
 
 Verify the file hash. The correct hash is not yet known as token migration is still ongoing.
 
 ```
-$shasum -a 256 genesis_no_quotes.json
-f7445bXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  genesis_no_quotes.json
+$ shasum -a 256 accounts.json
+f7445bXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  accounts.json

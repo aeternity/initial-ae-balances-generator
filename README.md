@@ -26,4 +26,4 @@ Verify the file hash.
 
 ```
 $shasum -a 256 accounts.json
-6b5895bc9fcad63880f465ce841edb5cd4ae313c53bd39289da9ce64f263fd74a accounts.json
+6b5895bc9fcad63880f465ce841edb5cd4ae313c53bd39289da9ce64f263fd74 accounts.json

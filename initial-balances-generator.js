@@ -6,6 +6,12 @@ const ProgressBar = require('progress');
 const WEB3_URL = args.p;
 const DELIVERY_PERIOD = args.d;
 
+function sleep(ms){
+  return new Promise(resolve=>{
+    setTimeout(resolve,ms)
+  })
+}
+
 // validate parameters
 if (WEB3_URL == null || DELIVERY_PERIOD == null) {
   console.log('Specify websocket provider and delivery period: "node initial-balances-generator.js -p ws://localhost:8546 -d 0"');
@@ -241,45 +247,51 @@ async function startWatching() {
   if (lastCount != 0)
     bar.tick(lastCount);
 
+  progressPromises = []
+  let tickCount = 0
   while (!done) {
     end = start + 200;
     if (end > currentBlockNumber) {
       done = true;
       end = currentBlockNumber;
     }
-    await TokenBurner.getPastEvents(
-      "Burn",
-      {
-        fromBlock: start,
-        toBlock: end,
-        filter : {_deliveryPeriod : [DELIVERY_PERIOD]}
-      },
-      (errors, events) => {
-        if (!errors) {
-          if (events.length > 0) {
-            for (let i=0; i<events.length; i++) {
-              bar.tick();
-              if(events[i].returnValues._count <= lastCount) {
-                continue;
-              }
-              address = web3.utils.toAscii(events[i].returnValues._pubkey);
-              address = address.replace(/(\r\n\t|\n|\r\t)/gm,"");
-              if (isValidAEddress(address)) {
-                value = events[i].returnValues._value;
-                if (json[address])
-                  json[address] = new BN(json[address]).add(new BN(value)).toString();
-                else json[address] = new BN(value).toString();
-              };
-              lastCount = Number(events[i].returnValues._count);
-            }
+    try {
+      let events = await TokenBurner.getPastEvents(
+        "Burn",
+        {
+          fromBlock: start,
+          toBlock: end,
+          filter : {_deliveryPeriod : [DELIVERY_PERIOD]}
+        }
+      );
+      if (events.length > 0) {
+        for (let i=0; i<events.length; i++) {
+          if(events[i].returnValues._count <= lastCount) {
+            continue;
           }
-        } else {
-          console.log(errors);
+          progressPromises.push(new Promise((resolve) => {
+            bar.tick();
+            resolve();
+          }))
+          await sleep(10);
+          address = web3.utils.toAscii(events[i].returnValues._pubkey);
+          address = address.replace(/(\r\n\t|\n|\r\t)/gm,"");
+          if (isValidAEddress(address)) {
+            value = events[i].returnValues._value;
+            if (json[address])
+              json[address] = new BN(json[address]).add(new BN(value)).toString();
+            else json[address] = new BN(value).toString();
+          };
+          lastCount = Number(events[i].returnValues._count);
         }
       }
-    );
+    } catch (errors) {
+      console.log(errors);
+      /* handle error */
+    }
     start = end;
   }
+  await Promise.all(progressPromises)
   saveJSON();
   process.exit(0);
 }
@@ -316,7 +328,7 @@ async function setupProgressBar() {
     total = Number(burnCount);
   }
   console.log(total + " burn events to be found");
-  bar = new ProgressBar(':bar :current/:total Burn events found.', { total: total });
+  bar = new ProgressBar(':bar :current/:total Burn events found.', { total: total, renderThrottle : 1});
 }
 
 function isValidAEddress(address) {

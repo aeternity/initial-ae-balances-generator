@@ -22,10 +22,10 @@ $
 where: `-p [WebsocketProvider]`
        `-d [delivery_period]`
 
-```
 
 Verify the file hash.
 
 ```
 $shasum -a 256 accounts.json
 761e27a90d931551a5f5d3a8f9014a276292ba6a780db1c0013e7996770cab69  accounts.json
+```

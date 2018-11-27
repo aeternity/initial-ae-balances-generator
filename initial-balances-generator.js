@@ -323,7 +323,9 @@ function isValidAEddress(address) {
 }
 
 function saveJSON() {
-  fs.writeFileSync("./genesis.json", JSON.stringify(json));
+  fs.writeFileSync("./genesis.json",
+    JSON.stringify(json, Object.keys(json).sort())
+  );
 }
 
 function saveCFG() {

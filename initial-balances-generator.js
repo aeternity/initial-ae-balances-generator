@@ -18,7 +18,7 @@ process
     if (code == 0) {
       if (fs.existsSync("./.cfg"))
         fs.unlinkSync("./.cfg");
-      console.log(`File saved: genesis.json.`);
+      console.log(`File saved: accounts.json.`);
     }
   })
   .on('SIGINT', onexit)
@@ -285,13 +285,13 @@ async function startWatching() {
 }
 
 function checkConfig() {
-  if (fs.existsSync("./.cfg") && fs.existsSync("./genesis.json")) {
+  if (fs.existsSync("./.cfg") && fs.existsSync("./accounts.json")) {
     let input = fs.readFileSync("./.cfg");
     let jsonConfig = JSON.parse(input);
     start = jsonConfig.start;
     end = jsonConfig.end;
     lastCount = jsonConfig.lastCount;
-    input = fs.readFileSync("./genesis.json");
+    input = fs.readFileSync("./accounts.json");
     json = JSON.parse(input);
   }
 }

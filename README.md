@@ -24,8 +24,8 @@ where: `-p [WebsocketProvider]`
 
 ```
 
-Verify the file hash. The correct hash is not yet known as token migration is still ongoing.
+Verify the file hash.
 
 ```
-$ shasum -a 256 accounts.json
-f7445bXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX  accounts.json
+$shasum -a 256 accounts.json
+761e27a90d931551a5f5d3a8f9014a276292ba6a780db1c0013e7996770cab69  accounts.json

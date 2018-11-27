@@ -305,7 +305,8 @@ async function setupProgressBar() {
     process.exit(1);
   }
 
-  let burnCount = await TokenBurner.methods.burnCount().call();
+  let batchTime = await TokenBurner.methods.batchTimes(DELIVERY_PERIOD).call();
+  let burnCount = batchTime.eventCount
 
   if (DELIVERY_PERIOD > 0) {
     let prevBatchTime = await TokenBurner.methods.batchTimes(DELIVERY_PERIOD-1).call();

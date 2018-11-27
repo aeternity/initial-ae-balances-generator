@@ -263,6 +263,7 @@ async function startWatching() {
                 continue;
               }
               address = web3.utils.toAscii(events[i].returnValues._pubkey);
+              address = address.replace(/(\r\n\t|\n|\r\t)/gm,"");
               if (isValidAEddress(address)) {
                 value = events[i].returnValues._value;
                 if (json[address])
@@ -304,7 +305,8 @@ async function setupProgressBar() {
     process.exit(1);
   }
 
-  let burnCount = await TokenBurner.methods.burnCount().call();
+  let batchTime = await TokenBurner.methods.batchTimes(DELIVERY_PERIOD).call();
+  let burnCount = batchTime.eventCount
 
   if (DELIVERY_PERIOD > 0) {
     let prevBatchTime = await TokenBurner.methods.batchTimes(DELIVERY_PERIOD-1).call();
@@ -322,7 +324,11 @@ function isValidAEddress(address) {
 }
 
 function saveJSON() {
-  fs.writeFileSync("./genesis.json", JSON.stringify(json));
+  let jsonString = JSON.stringify(json, Object.keys(json).sort(), 2)
+  jsonString = jsonString.replace(/: "/gm, ': ')
+  jsonString = jsonString.replace(/",$/gm, ',')
+  jsonString = jsonString.replace(/"$/gm, '')
+  fs.writeFileSync("./accounts.json", jsonString+'\n') ;
 }
 
 function saveCFG() {

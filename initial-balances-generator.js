@@ -18,7 +18,7 @@ process
     if (code == 0) {
       if (fs.existsSync("./.cfg"))
         fs.unlinkSync("./.cfg");
-      console.log(`File saved: accounts.json.`);
+      console.log(`File saved: ./accounts_period_${DELIVERY_PERIOD}.json`);
     }
   })
   .on('SIGINT', onexit)
@@ -239,7 +239,8 @@ async function startWatching() {
   let address;
   let value;
   if (lastCount != 0)
-    bar.tick(lastCount);
+    //bar.tick(lastCount);
+    await delayedProgressBarTick();
 
   while (!done) {
     end = start + 200;
@@ -254,11 +255,13 @@ async function startWatching() {
         toBlock: end,
         filter : {_deliveryPeriod : [DELIVERY_PERIOD]}
       },
-      (errors, events) => {
+      async (errors, events) => {
         if (!errors) {
           if (events.length > 0) {
+            
             for (let i=0; i<events.length; i++) {
-              bar.tick();
+              //bar.tick();
+              await delayedProgressBarTick();
               if(events[i].returnValues._count <= lastCount) {
                 continue;
               }
@@ -284,14 +287,23 @@ async function startWatching() {
   process.exit(0);
 }
 
+function delayedProgressBarTick() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      bar.tick();
+      resolve();
+    }, 500);
+  })
+}
+
 function checkConfig() {
-  if (fs.existsSync("./.cfg") && fs.existsSync("./accounts.json")) {
+  if (fs.existsSync("./.cfg") && fs.existsSync(`./accounts_period_${DELIVERY_PERIOD}.json`)) {
     let input = fs.readFileSync("./.cfg");
     let jsonConfig = JSON.parse(input);
     start = jsonConfig.start;
     end = jsonConfig.end;
     lastCount = jsonConfig.lastCount;
-    input = fs.readFileSync("./accounts.json");
+    input = fs.readFileSync(`./accounts_period_${DELIVERY_PERIOD}.json`);
     json = JSON.parse(input);
   }
 }
@@ -305,17 +317,26 @@ async function setupProgressBar() {
     process.exit(1);
   }
 
-  let batchTime = await TokenBurner.methods.batchTimes(DELIVERY_PERIOD).call();
-  let burnCount = batchTime.eventCount
+  var batchTime = await TokenBurner.methods.batchTimes(DELIVERY_PERIOD).call();
+  var burnCount = batchTime.eventCount
 
   if (DELIVERY_PERIOD > 0) {
-    let prevBatchTime = await TokenBurner.methods.batchTimes(DELIVERY_PERIOD-1).call();
+    var prevBatchTime = await TokenBurner.methods.batchTimes(DELIVERY_PERIOD-1).call();
     start = Number(prevBatchTime.blockNumber);
     total = Number(burnCount) - Number(prevBatchTime.eventCount);
+    
+    // display the burn counts from previous periods
+    var currentPeriodCount;
+    for (i = DELIVERY_PERIOD; i >= 0; i--){
+      var prevBatchTime = await TokenBurner.methods.batchTimes(i).call();
+      start = Number(prevBatchTime.blockNumber);
+      total = Number(burnCount) - Number(prevBatchTime.eventCount);
+    }
+
   } else {
     total = Number(burnCount);
   }
-  console.log(total + " burn events to be found");
+  console.log(total + " burn events to be found for last token migration period.");
   bar = new ProgressBar(':bar :current/:total Burn events found.', { total: total });
 }
 
@@ -328,7 +349,7 @@ function saveJSON() {
   jsonString = jsonString.replace(/: "/gm, ': ')
   jsonString = jsonString.replace(/",$/gm, ',')
   jsonString = jsonString.replace(/"$/gm, '')
-  fs.writeFileSync("./accounts.json", jsonString+'\n') ;
+  fs.writeFileSync(`./accounts_period_${DELIVERY_PERIOD}.json`, jsonString+'\n') ;
 }
 
 function saveCFG() {
